@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Pharmacy Management System</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- LOGIN PAGE -->
+  <div id="loginPage" class="page active">
+    <div class="login-box">
+      <div class="login-logo">💊</div>
+      <h1>Smart Pharmacy</h1>
+      <p>Management System</p>
+      <div class="field">
+        <label>Username</label>
+        <input type="text" id="username" placeholder="Enter username">
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="password" placeholder="Enter password">
+      </div>
+      <div class="field">
+        <label>Role</label>
+        <select id="role">
+          <option value="pharmacist">Pharmacist</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+      <button onclick="login()" class="btn-primary full-width">Login</button>
+      <p id="loginError" class="error-msg"></p>
+      <p class="hint">Demo: user: <b>admin</b> / pass: <b>1234</b></p>
+    </div>
+  </div>
+
+  <!-- PHARMACIST DASHBOARD -->
+  <div id="pharmacistPage" class="page">
+    <header class="top-bar">
+      <div class="logo">💊 Smart Pharmacy</div>
+      <div class="nav-links">
+        <button onclick="showSection('posSection')" class="nav-btn active-nav" id="navPOS">🛒 Point of Sale</button>
+        <button onclick="showSection('inventorySection')" class="nav-btn" id="navInventory">📦 Inventory</button>
+      </div>
+      <div class="user-area">
+        <span id="loggedUserName">Pharmacist</span>
+        <button onclick="logout()" class="btn-logout">Logout</button>
+      </div>
+    </header>
+
+    <!-- POS SECTION -->
+    <div id="posSection" class="section active-section">
+      <div class="container">
+        <section class="panel left-panel">
+          <h2>🔍 Medicine Search</h2>
+          <div class="field">
+            <label>Medicine Code</label>
+            <input type="text" id="medCode" placeholder="e.g. 1001">
+          </div>
+          <button onclick="searchMedicine()" class="btn-primary">Search</button>
+          <div class="med-info" id="medInfoBox">
+            <h3>Medicine Details</h3>
+            <table class="info-table">
+              <tr><td>Name:</td><td id="medName">-</td></tr>
+              <tr><td>Price:</td><td id="medPrice">-</td></tr>
+              <tr><td>Available:</td><td id="medAvail">-</td></tr>
+              <tr><td>Expiry:</td><td id="medExpiry">-</td></tr>
+            </table>
+            <div class="field" style="margin-top:10px">
+              <label>Quantity</label>
+              <input type="number" id="medQty" min="1" value="1">
+            </div>
+            <button onclick="addToCart()" class="btn-success">Add to Cart</button>
+          </div>
+        </section>
+        <section class="panel right-panel">
+          <h2>🛒 Cart</h2>
+          <table id="cartTable">
+            <thead>
+              <tr><th>Code</th><th>Name</th><th>Qty</th><th>Price</th><th>Total</th><th></th></tr>
+            </thead>
+            <tbody id="cartBody"></tbody>
+          </table>
+          <div class="summary">
+            <span>Grand Total:</span>
+            <span id="grandTotal" class="total-amount">0.00 EGP</span>
+          </div>
+          <button onclick="completeSale()" class="btn-primary full-width" style="margin-top:10px">✅ Complete Sale</button>
+        </section>
+      </div>
+    </div>
+
+    <!-- INVENTORY SECTION -->
+    <div id="inventorySection" class="section">
+      <div class="container" style="flex-direction:column">
+        <div class="panel" style="width:100%;box-sizing:border-box">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <h2>📦 Inventory Management</h2>
+            <button onclick="showExpiryAlerts()" class="btn-warning">⚠️ Show Expiry Alerts</button>
+          </div>
+          <div style="display:flex;gap:10px;margin-bottom:10px">
+            <input type="text" id="invSearch" placeholder="Search by name or code..." style="flex:1;padding:6px 8px;border:1px solid #ccc;border-radius:4px">
+            <button onclick="searchInventory()" class="btn-primary">Search</button>
+          </div>
+          <table id="inventoryTable">
+            <thead>
+              <tr><th>Code</th><th>Name</th><th>Category</th><th>Qty</th><th>Min Qty</th><th>Price</th><th>Expiry</th><th>Status</th><th>Action</th></tr>
+            </thead>
+            <tbody id="inventoryBody"></tbody>
+          </table>
+        </div>
+        <div id="expiryAlertBox" class="panel alert-box" style="display:none;width:100%;box-sizing:border-box;margin-top:20px">
+          <h3>⚠️ Expiry & Low Stock Alerts</h3>
+          <table>
+            <thead><tr><th>Code</th><th>Name</th><th>Qty</th><th>Expiry</th><th>Alert</th></tr></thead>
+            <tbody id="alertBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMIN DASHBOARD -->
+  <div id="adminPage" class="page">
+    <header class="top-bar">
+      <div class="logo">💊 Smart Pharmacy - Admin</div>
+      <div class="nav-links">
+        <button onclick="showAdminSection('reportsSection')" class="nav-btn active-nav">📊 Reports</button>
+        <button onclick="showAdminSection('stockSection')" class="nav-btn">📉 Low Stock</button>
+        <button onclick="showAdminSection('usersSection')" class="nav-btn">👥 Users</button>
+      </div>
+      <div class="user-area">
+        <span>Admin</span>
+        <button onclick="logout()" class="btn-logout">Logout</button>
+      </div>
+    </header>
+
+    <!-- REPORTS -->
+    <div id="reportsSection" class="section active-section">
+      <div class="container" style="flex-direction:column">
+        <div class="panel" style="width:100%;box-sizing:border-box">
+          <h2>📊 Sales Reports</h2>
+          <div style="display:flex;gap:20px;margin-bottom:15px">
+            <div class="stat-card"><div class="stat-num" id="totalSales">0</div><div>Total Sales Today</div></div>
+            <div class="stat-card"><div class="stat-num" id="totalInvoices">0</div><div>Invoices Today</div></div>
+            <div class="stat-card"><div class="stat-num" id="totalRevenue">0 EGP</div><div>Revenue Today</div></div>
+          </div>
+          <h3>Recent Invoices</h3>
+          <table>
+            <thead><tr><th>Invoice #</th><th>Date</th><th>Pharmacist</th><th>Items</th><th>Total</th></tr></thead>
+            <tbody id="invoicesBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOW STOCK -->
+    <div id="stockSection" class="section">
+      <div class="container" style="flex-direction:column">
+        <div class="panel" style="width:100%;box-sizing:border-box">
+          <h2>📉 Low Stock Medicines</h2>
+          <table>
+            <thead><tr><th>Code</th><th>Name</th><th>Current Qty</th><th>Min Qty</th><th>Supplier</th><th>Status</th></tr></thead>
+            <tbody id="lowStockBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- USERS -->
+    <div id="usersSection" class="section">
+      <div class="container" style="flex-direction:column">
+        <div class="panel" style="width:100%;box-sizing:border-box">
+          <h2>👥 Users Management</h2>
+          <table>
+            <thead><tr><th>ID</th><th>Username</th><th>Full Name</th><th>Role</th><th>Status</th></tr></thead>
+            <tbody id="usersBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUCCESS MODAL -->
+  <div id="saleModal" class="modal" style="display:none">
+    <div class="modal-content">
+      <h2>✅ Sale Completed!</h2>
+      <p id="modalInvoiceNum"></p>
+      <p id="modalTotal"></p>
+      <p>Invoice has been generated and inventory updated.</p>
+      <button onclick="closeModal()" class="btn-primary">Close</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
